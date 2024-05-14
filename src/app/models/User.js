@@ -13,6 +13,7 @@ const User = new Schema({
     avatar: { type: String, default: '' },
     token: { type: String, default: '' },
 
+
 }, {
     timestamps: true
 })
