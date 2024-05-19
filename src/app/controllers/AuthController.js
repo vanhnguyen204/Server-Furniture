@@ -18,10 +18,13 @@ const AuthController = {
     }
 ,
     async register(req, res, next) {
+        console.log('Sign up');
+        console.log(req.body)
         try {
             const salt = await bcrypt.genSalt(10);
-            const checkUserIsEmpty = await User.find({email: req.body.email});
+            const checkUserIsEmpty = await User.findOne({email: req.body.email});
             if (checkUserIsEmpty) {
+                console.log(checkUserIsEmpty);
                 return res.json({error: 'Tài khoản đã tồn tại.'})
             }
             const hashedPassword = await bcrypt.hash(req.body.passWord, salt);
