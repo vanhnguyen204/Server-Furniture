@@ -13,5 +13,25 @@ const verifyToken = async (token) => {
         });
     });
 };
+const authMiddleware = async (req, res, next) => {
+    const token = req.header('Authorization')?.split(' ')[1];
 
-export { verifyToken };
+    if (!token) {
+        return res.status(401).json({
+            status: 401,
+            message: 'Không có quyền truy cập.',
+            cause: 'Không thể kiểm tra người dùng.'
+        });
+    }
+
+    try {
+        const decoded = await verifyToken(token);
+        console.log('decoded')
+        console.log(decoded)
+        req.body.user = decoded;  
+        next(); 
+    } catch (err) {
+        res.status(400).send('Invalid Token');
+    }
+};
+export { verifyToken , authMiddleware};

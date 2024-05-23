@@ -8,24 +8,31 @@ const AuthController = {
         try {
             const result = await User.findByCredentials(req.body.email, req.body.passWord);
             if (result.error) {
-                return res.json({ error: result.error });
+
+                return res.status(404).json({
+                    status: 404,
+                    cause: result.error,
+                    message: "Không thể đăng nhập lúc này."
+                });
             }
             const token = await result.generateAuthToken();
-            res.status(200).json({ user: result, token });
+            result.passWord = ""
+            result.token = token
+            res.status(200).json(result);
         } catch (error) {
             next(error);
         }
     }
-,
+    ,
     async register(req, res, next) {
         console.log('Sign up');
         console.log(req.body)
         try {
             const salt = await bcrypt.genSalt(10);
-            const checkUserIsEmpty = await User.findOne({email: req.body.email});
+            const checkUserIsEmpty = await User.findOne({ email: req.body.email });
             if (checkUserIsEmpty) {
                 console.log(checkUserIsEmpty);
-                return res.json({error: 'Tài khoản đã tồn tại.'})
+                return res.json({ error: 'Tài khoản đã tồn tại.' })
             }
             const hashedPassword = await bcrypt.hash(req.body.passWord, salt);
 

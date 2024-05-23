@@ -64,8 +64,8 @@ class ProductController {
     }
 
     async productDetails(req, res, next) {
-        const { id } = req.body;
-        const responseFind = Product.find({ _id: id });
+        const { productId } = req.body;
+        const responseFind = Product.find({ _id: productId });
         if (!responseFind) {
             return res.status(404).json({ message: 'Product not found!' });
         }
