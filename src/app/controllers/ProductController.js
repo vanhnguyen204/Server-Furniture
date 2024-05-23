@@ -16,7 +16,6 @@ class ProductController {
             next(error)
         }
     }
-
     async getProductOfUser(req, res, next) {
         try {
             const { userId } = req.body;
@@ -64,12 +63,18 @@ class ProductController {
     }
 
     async productDetails(req, res, next) {
-        const { productId } = req.body;
-        const responseFind = Product.find({ _id: productId });
-        if (!responseFind) {
-            return res.status(404).json({ message: 'Product not found!' });
+        try {
+            const { productId } = req.body;
+            console.log("Product detail--------");
+            const response = await Product.findOne({ _id: productId });
+            console.log(response);
+            if (!response) {
+                return res.status(404).json({ message: 'Product not found!' });
+            }
+            return res.status(200).json(response);
+        } catch (error) {
+            next(error)
         }
-        return res.status(200).json(responseFind);
     }
 
     async updateProduct(req, res, next) {

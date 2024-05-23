@@ -2,22 +2,28 @@ import { response } from "express";
 import Favorite from "../models/Favorite.js";
 import Product from "../models/Product.js";
 class FavoriteController {
-    createFavorite(req, res, next) {
-        const { userId, productId } = req.body;
-        const newFavorite = new Favorite({ userId, productId });
-        newFavorite.save()
-            .then(response => {
-                res.status(201).json({ message: 'Added product to your list favorites.' });
-            })
-            .catch(e => {
-                next(e)
-            })
+   async createFavorite(req, res, next) {
+    console.log('Create favorite--------')
+       try {
+        const { productId } = req.body;
+        const {_id} = req.body.user;
+
+        const newFavorite = new Favorite({ userId: _id, productId: productId });
+        const response = await newFavorite.save();
+
+        res.status(201).json(newFavorite);
+        console.log(response);
+       } catch (error) {
+        next(error)
+       }
 
     }
 
     async deleteFavorite(req, res, next) {
+        console.log('Remove favorite------');
         try {
-            const { _id, productId } = req.body.user;
+            const { _id } = req.body.user;
+            const {productId} = req.body
             const favoriteResponse = await Favorite.deleteOne({ userId: _id, productId: productId })
             console.log(favoriteResponse)
             res.status(200).json({ message: 'Remove product out of list favorites' });
