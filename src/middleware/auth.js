@@ -26,12 +26,12 @@ const authMiddleware = async (req, res, next) => {
 
     try {
         const decoded = await verifyToken(token);
-        console.log('decoded')
+        console.log('Decoded authorization.')
         console.log(decoded)
         req.body.user = decoded;  
         next(); 
     } catch (err) {
-        res.status(400).send('Invalid Token');
+        res.status(400).json({message: 'Failed', cause: 'Invalid Token', status: 400});
     }
 };
 export { verifyToken , authMiddleware};

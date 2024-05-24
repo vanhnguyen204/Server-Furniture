@@ -1,9 +1,26 @@
 import Cart from "../models/Cart.js";
-
+import Product from "../models/Product.js"
 class CartController {
     async fetchDataFromCart(req, res, next) {
         try {
-           
+            const { _id } = req.body.user;
+            const response = await Cart.find({ userId: _id });
+            if (response.length <= 0) {
+                return res.status(404).json({ status: 404, message: '' })
+            }
+            const filterProductId = response.map(item => {
+                return item.productId
+            })
+            const responseFetchProduct = await Product.find({ _id: { $in: filterProductId } })
+
+            const asignQuantity = responseFetchProduct.map((item, index) => {
+                if (item._id.toString() === response[index].productId) {
+                    item.quantity = response[index].quantity
+
+                    return { ...item._doc, quantity: response[index].quantity };
+                }
+            })
+            return res.status(200).json(asignQuantity)
         } catch (error) {
             next(error)
         }
@@ -12,6 +29,13 @@ class CartController {
         try {
             const { _id } = req.body.user;
             const { productId } = req.body
+            const response = await Cart.findOne({ productId: productId, userId: _id });
+
+            if (response) {
+                return res.status(200).json({ message: 'This product is in the cart.', status: 200 })
+            } else {
+                return res.status(200).json({ message: 'This product is not in the cart.', status: 202 })
+            }
         } catch (error) {
             next(error)
         }
@@ -33,7 +57,7 @@ class CartController {
             if (checkProductIsEmpty) {
 
                 await Cart.updateMany({ _id: checkProductIsEmpty._id }, { quantity: parseQuantity + checkProductIsEmpty.quantity })
-                return res.status(200).json({ message: 'Update số lượng sản phẩm trong giỏ hàng thành công.' })
+                return res.status(200).json({ message: 'Update quantity of product successfully.', status: 200 })
 
             }
             const newData = new Cart()
@@ -43,7 +67,7 @@ class CartController {
 
             await newData.save();
 
-            return res.status(201).json({ message: 'Thêm sản phẩm vào giỏ hàng thành công.', data: newData })
+            return res.status(201).json({ message: 'Add product to cart successfully', data: newData, status: 201 })
         } catch (error) {
             next(error)
         }

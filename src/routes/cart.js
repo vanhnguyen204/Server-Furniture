@@ -7,4 +7,5 @@ route.post('/add-all', authMiddleware, CartController.addAllToCart);
 route.post('/add', authMiddleware, CartController.addToCart);
 route.post('/remove', authMiddleware, CartController.removeFromCart);
 route.post('/update-quantity', authMiddleware, CartController.updateQuantityProductInCart)
+route.post('/my-cart', authMiddleware, CartController.fetchDataFromCart)
 export default route;
