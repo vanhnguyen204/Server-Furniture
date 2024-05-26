@@ -76,7 +76,14 @@ class CartController {
     }
 
     async removeFromCart(req, res, next) {
+        try {
+        
+            const {cartId} = req.body
+            await Cart.deleteOne({_id: cartId})
+            return res.status(200).json({message: 'Remove product from cart success.', status: 200})
+        } catch (error) {
 
+        }
     }
     async updateQuantityProductInCart(req, res, next) {
 
