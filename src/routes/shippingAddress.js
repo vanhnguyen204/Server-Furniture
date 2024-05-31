@@ -3,6 +3,7 @@ import ShippingAddressController from "../app/controllers/ShippingAddressControl
 import upload from "../config/common/upload.js";
 import { authMiddleware } from "../middleware/auth.js";
 const route = express.Router();
+route.post('/address-selected', authMiddleware, ShippingAddressController.getAddressIsSelected)
 route.post('/active', authMiddleware, ShippingAddressController.activeShippingAddress)
 route.get('/', authMiddleware, ShippingAddressController.getMyShippingAddress);
 route.post('/', authMiddleware, ShippingAddressController.create);

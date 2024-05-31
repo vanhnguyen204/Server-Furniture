@@ -17,13 +17,15 @@ class ProductController {
         }
     }
     async getProductOfUser(req, res, next) {
+
         try {
+            const { _id } = req.body.user
             const { userId } = req.body;
-            const productRes = await Product.find({ userId: userId });
+            const productRes = await Product.find({ userId: _id });
             if (productRes.length > 0) {
                 return res.status(200).json(productRes);
             } else {
-                return res.json({ message: 'User do not have any product!' });
+                return res.status(400).json({ message: 'User do not have any product!' });
             }
         } catch (error) {
             next(error)
@@ -31,35 +33,42 @@ class ProductController {
     }
 
     async createProduct(req, res, next) {
-        const {
-            name,
-            price,
-            description,
-            type,
-            userId
-        } = req.body;
-        const image = '/images/' + req.file.originalname;
-        const newProduct = new Product();
-        newProduct.name = name;
-        newProduct.price = Number(price);
-        newProduct.description = description;
-        newProduct.image = image;
-        newProduct.type = type;
-        newProduct.userId = userId;
-        const createProductRes = await newProduct.save();
-        if (!createProductRes) {
-            res.status(400).json({ message: 'Create new product failed!' });
+        console.log('Create product.');
+        try {
+            const { _id } = req.body.user
+            const {
+                name,
+                price,
+                description,
+                type,
+            } = req.body;
+            console.log(req.body);
+            const image = '/images/' + req.file.originalname;
+            const newProduct = new Product();
+            newProduct.name = name;
+            newProduct.price = Number(price);
+            newProduct.description = description;
+            newProduct.image = image;
+            newProduct.type = type;
+            newProduct.userId = _id;
+            const createProductRes = await newProduct.save();
+            if (!createProductRes) {
+                res.status(400).json({ message: 'Create new product failed!', status: 400 });
+            }
+            return res.status(201).json({ message: 'Create new product successfully!', status: 201, newProduct })
+        } catch (error) {
+            console.log(error)
+            next(error)
         }
-        return res.status(201).json({ message: 'Create new product successfully!' })
     }
 
     async deleteProduct(req, res, next) {
         const { id } = req.body;
-        const dlProductRes = Product.deleteOne({ _id: id });
+        const dlProductRes = await Product.deleteOne({ _id: id });
         if (!dlProductRes) {
-            return res.status(404).json({ message: 'Can not delete product right now, please try again!' })
+            return res.status(404).json({ message: 'Can not delete product right now, please try again!', status: 404 })
         }
-        return res.status(200).json({ message: 'Delete product successfully!' })
+        return res.status(200).json({ message: 'Delete product successfully!' , status: 200})
     }
 
     async productDetails(req, res, next) {
@@ -78,37 +87,39 @@ class ProductController {
     }
 
     async updateProduct(req, res, next) {
-        const {
-            name,
-            price,
-            description,
-            id,
-            type,
-            userId,
-            imageUpdate
-        } = req.body;
-        let image = '';
-        if (!imageUpdate) {
-            image = '/images/' + req.file.originalname;
-        } else {
-            image = imageUpdate;
-        }
+        try {
+            console.log('Update product.')
+            const {
+                name,
+                price,
+                description,
+                productId,
+                type,
+                imageUpdate
+            } = req.body;
+            let image = '';
+            if (!imageUpdate) {
+                image = '/images/' + req.file.originalname;
+            } else {
+                image = imageUpdate;
+            }
+            console.log(req.body);
+            const findProduct = await Product.findOne({ _id: productId });
+            if (!findProduct) {
+                return res.status(404).json({ message: 'Product not found to update!' })
+            }
+            console.log(findProduct);
+            findProduct.name = name;
+            findProduct.price = price;
+            findProduct.description = description;
+            findProduct.image = image;
+            findProduct.type = type;
+            await Product.updateOne({ _id: productId }, findProduct)
 
-        const findProduct = Product.find({ _id: id });
-        if (!findProduct) {
-            return res.status(404).json({ message: 'Product not found to update!' })
+            return res.status(200).json({ message: 'Update product successfully!', status: 200 })
+        } catch (error) {
+            next(error)
         }
-        const updateProduct = new Product();
-        updateProduct.name = name;
-        updateProduct.price = price;
-        updateProduct.description = description;
-        updateProduct.image = image;
-        updateProduct.type = type;
-        const createProductRes = await updateProduct.updateOne({ _id: id });
-        if (!createProductRes) {
-            res.status(400).json({ message: 'Create new product failed!' });
-        }
-        return res.status(201).json({ message: 'Create new product successfully!' })
     }
 }
 

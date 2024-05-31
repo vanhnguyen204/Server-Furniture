@@ -76,11 +76,15 @@ class CartController {
     }
 
     async removeFromCart(req, res, next) {
+        console.log('Remove product from cart')
         try {
-        
-            const {cartId} = req.body
-            await Cart.deleteOne({_id: cartId})
-            return res.status(200).json({message: 'Remove product from cart success.', status: 200})
+            const { _id } = req.body.user;
+            const { productId } = req.body
+
+            await Cart.deleteOne({ productId: productId, userId: _id })
+            console.log('Remove product from cart success')
+
+            return res.status(200).json({ message: 'Remove product from cart success.', status: 200 })
         } catch (error) {
 
         }
@@ -88,6 +92,7 @@ class CartController {
     async updateQuantityProductInCart(req, res, next) {
 
     }
+
 }
 
 export default new CartController();

@@ -1,5 +1,5 @@
 import ShippingAddress from "../models/ShippingAddress.js";
-
+import Address from '../models/Address.js'
 class ShippingAddressController {
     async getMyShippingAddress(req, res, next) {
         console.log('Get my shipping address')
@@ -54,10 +54,16 @@ class ShippingAddressController {
                 recipient
             } = req.body;
 
-            const checkVar = await ShippingAddress.findOne({ _id: shippingAddressId })
-            console.log(checkVar)
-            // await newAddress.save();
-            // return res.status(201).json({ message: 'Create new shipping address success.', newAddress });
+            await ShippingAddress.updateOne({ _id: shippingAddressId }, {
+                country,
+                city,
+                district,
+                addressDetail,
+                recipient
+            })
+
+
+            return res.status(200).json({ message: 'Create new shipping address success.', status: 200 });
         } catch (error) {
             next(error)
 
@@ -65,6 +71,7 @@ class ShippingAddressController {
     }
 
     async delete(req, res, next) {
+        console.log('Remove shipping address.')
         try {
             const { _id } = req.body.user;
             const { addressId } = req.body
@@ -93,6 +100,17 @@ class ShippingAddressController {
         }
     }
 
+    async getAddressIsSelected(req, res, next) {
+        try {
+            const { _id } = req.body.user;
+            const response = await ShippingAddress.findOne({ userId: _id, isSelected: true })
+            if (response) {
+                return res.status(200).json({ message: 'Get shipping address is selected successfully.', data: response })
+            }
+        } catch (error) {
+            next(error)
+        }
+    }
 }
 
 export default new ShippingAddressController();

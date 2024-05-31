@@ -12,7 +12,7 @@ const ShippingAddress = new Schema({
     },
     {
         timestamps: true,
-    })
+})
 
 const ShippingAddressModel = mongoose.model('ShippingAddress', ShippingAddress, 'ShippingAddress');
 
