@@ -7,6 +7,7 @@ route.post('/delete', ProductController.deleteProduct);
 route.post('/create', upload, authMiddleware, ProductController.createProduct);
 route.post('/update', upload, ProductController.updateProduct);
 route.post('/details', authMiddleware, ProductController.productDetails);
+route.post('/search', ProductController.search)
 route.get('/my-product', authMiddleware, ProductController.getProductOfUser);
 route.get('/', ProductController.getAllProduct);
 

@@ -2,6 +2,7 @@ import Cart from "../models/Cart.js";
 import Product from "../models/Product.js"
 class CartController {
     async fetchDataFromCart(req, res, next) {
+        console.log('Fetch my cart')
         try {
             const { _id } = req.body.user;
             const response = await Cart.find({ userId: _id });
@@ -20,6 +21,7 @@ class CartController {
                     return { ...item._doc, quantity: response[index].quantity };
                 }
             })
+            console.log(asignQuantity);
             return res.status(200).json(asignQuantity)
         } catch (error) {
             next(error)

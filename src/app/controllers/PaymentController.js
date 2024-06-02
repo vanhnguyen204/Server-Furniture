@@ -37,8 +37,8 @@ class PaymentController {
         try {
             const { _id } = req.body.user;
             const { cartId } = req.body;
-            const response = await Payment.deleteOne({ _id: cartId, userId: _id })
-            console.log(response);
+            await Payment.deleteOne({ _id: cartId, userId: _id })
+            return res.json({message: 'Remove payment success', status: 200})
         } catch (error) {
             next(error)
         }

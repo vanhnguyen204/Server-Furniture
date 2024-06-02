@@ -121,6 +121,19 @@ class ProductController {
             next(error)
         }
     }
+    async search(req, res, data) {
+        try {
+            const {productName} = req.body;
+            const regex = new RegExp(productName, 'i');
+            if (productName === '') {
+                return res.json([])
+            }
+            const response = await Product.find({name: { $regex: regex } })
+            return res.json(response)
+        } catch (error) {
+            
+        }
+    }
 }
 
 export default new ProductController;

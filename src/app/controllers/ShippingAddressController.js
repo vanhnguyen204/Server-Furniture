@@ -83,6 +83,7 @@ class ShippingAddressController {
     }
 
     async activeShippingAddress(req, res, next) {
+        console.log('Active shipping address')
         try {
             const { _id } = req.body.user;
             const { shippingAddressId } = req.body;
