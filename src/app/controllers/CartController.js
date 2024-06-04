@@ -7,18 +7,24 @@ class CartController {
             const { _id } = req.body.user;
             const response = await Cart.find({ userId: _id });
             if (response.length <= 0) {
-                return res.status(404).json({ status: 404, message: '' })
+                return res.status(404).json({ status: 404, message: 'Your cart is empty!' })
             }
+
             const filterProductId = response.map(item => {
                 return item.productId
             })
+            console.log(filterProductId)
             const responseFetchProduct = await Product.find({ _id: { $in: filterProductId } })
-
+            console.log(responseFetchProduct)
             const asignQuantity = responseFetchProduct.map((item, index) => {
-                if (item._id.toString() === response[index].productId) {
-                    item.quantity = response[index].quantity
+                for (let i = 0; i < response.length; i++) {
 
-                    return { ...item._doc, quantity: response[index].quantity };
+                    if (item._id.toString() === response[i].productId) {
+                        item.quantity = response[i].quantity
+                        const newItem = { ...item._doc, quantity: response[i].quantity }
+                        console.log("newItem", newItem)
+                        return newItem
+                    }
                 }
             })
             console.log(asignQuantity);

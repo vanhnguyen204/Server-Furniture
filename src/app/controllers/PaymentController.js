@@ -5,8 +5,19 @@ class PaymentController {
         console.log('Get my payment')
         try {
             const { _id } = req.body.user;
-
             const response = await Payment.find({ userId: _id })
+            return res.status(200).json(response)
+        } catch (error) {
+            next(error)
+        }
+    }
+    async getSelectedPayment(req, res, next) {
+        try {
+            const {_id}  = req.body.user;
+            const response = await Payment.findOne({userId: _id, isSelected: true})
+            if (!response) {
+                return res.status(404).json({})
+            }
             return res.status(200).json(response)
         } catch (error) {
             next(error)

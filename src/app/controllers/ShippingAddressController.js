@@ -13,6 +13,7 @@ class ShippingAddressController {
     }
 
     async create(req, res, next) {
+        console.log('Create shipping address')
         try {
             const { _id } = req.body.user;
             const {
@@ -36,13 +37,14 @@ class ShippingAddressController {
 
             await newAddress.save();
             console.log('Create shipping address success!')
-            return res.status(201).json({ message: 'Create new shipping address success.', newAddress, status: 201 });
+            return res.status(201).json({ message: 'Create new shipping address success.', status: 201 });
         } catch (error) {
             next(error)
 
         }
     }
     async update(req, res, next) {
+        console.log('Update shipping address')
         try {
             const { _id } = req.body.user;
             const {
@@ -54,7 +56,7 @@ class ShippingAddressController {
                 recipient
             } = req.body;
 
-            await ShippingAddress.updateOne({ _id: shippingAddressId }, {
+            await ShippingAddress.updateOne({ _id: shippingAddressId , userId: _id}, {
                 country,
                 city,
                 district,
@@ -63,8 +65,9 @@ class ShippingAddressController {
             })
 
 
-            return res.status(200).json({ message: 'Create new shipping address success.', status: 200 });
+            return res.status(200).json({ message: 'Update shipping address success.', status: 200 });
         } catch (error) {
+            res.status(400).json({ message: 'Update shipping address failed.', status: 400 });
             next(error)
 
         }
@@ -74,8 +77,9 @@ class ShippingAddressController {
         console.log('Remove shipping address.')
         try {
             const { _id } = req.body.user;
-            const { addressId } = req.body
-            await ShippingAddress.deleteOne({ _id: addressId, userId: _id })
+            const { shippingAddressId } = req.body
+            const { id } = req.query
+            await ShippingAddress.deleteOne({ _id: shippingAddressId ?? id, userId: _id })
             return res.status(200).json({ message: 'Delete shipping address success.', status: 200 })
         } catch (error) {
             next(error)

@@ -4,10 +4,9 @@ class AddressController {
     async getAddress(req, res, next) {
         console.log('Get address.')
         try {
-            const { city, district } = req.body;
-            console.log(city);
-            if (city) {
-                const response = await Address.find({ city })
+            const { shippingAddressId, district } = req.body;
+            if (shippingAddressId) {
+                const response = await Address.find({ city: shippingAddressId })
                 const filterDistrict = response.map((item) => {
                     return item.district;
                 })

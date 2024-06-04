@@ -4,7 +4,6 @@ const AuthController = {
     async login(req, res, next) {
         console.log('Login')
         console.log(req.body)
-
         try {
             const result = await User.findByCredentials(req.body.email, req.body.passWord);
             if (result.error) {
