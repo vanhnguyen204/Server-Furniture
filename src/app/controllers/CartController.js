@@ -13,9 +13,7 @@ class CartController {
             const filterProductId = response.map(item => {
                 return item.productId
             })
-            console.log(filterProductId)
             const responseFetchProduct = await Product.find({ _id: { $in: filterProductId } })
-            console.log(responseFetchProduct)
             const asignQuantity = responseFetchProduct.map((item, index) => {
                 for (let i = 0; i < response.length; i++) {
 
