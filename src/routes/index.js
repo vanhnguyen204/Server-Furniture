@@ -6,6 +6,7 @@ import payment from "./payment.js"
 import shippingAddress from './shippingAddress.js'
 import address from './address.js'
 import invoice from './invoice.js'
+import review from './review.js'
 const route = (app) => {
     app.use('/api/auth', auth);
     app.use('/api/product', product);
@@ -15,6 +16,7 @@ const route = (app) => {
     app.use('/api/shipping-address', shippingAddress)
     app.use('/api/address', address)
     app.use('/api/invoice', invoice)
+    app.use('/api/review', review)
 }
 
 export default route;

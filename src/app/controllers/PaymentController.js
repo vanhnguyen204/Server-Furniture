@@ -32,8 +32,8 @@ class PaymentController {
             const checkIsEmpty = await Payment.findOne({ cartNumber })
             if (checkIsEmpty) {
                 return res.status(409).json({
-                    message: 'Tạo phương thức thanh toán thất bại.',
-                    cause: 'Phương thức thanh toán này đã được sử dụng.',
+                    message: 'Create new payment failed.',
+                    cause: 'This payment is already in use.',
                     status: 409
                 })
             }
@@ -47,8 +47,8 @@ class PaymentController {
     async removePayment(req, res, next) {
         try {
             const { _id } = req.body.user;
-            const { cartId } = req.body;
-            await Payment.deleteOne({ _id: cartId, userId: _id })
+            const { paymentId } = req.params;
+            await Payment.deleteOne({ _id: paymentId, userId: _id })
             return res.json({message: 'Remove payment success', status: 200})
         } catch (error) {
             next(error)
@@ -59,8 +59,8 @@ class PaymentController {
         console.log('Update payment method')
         try {
             const { _id } = req.body.user;
-            const { cartNumber, expiryDate, cvc, cartHolderName, type } = req.body
-            const newPayment = new Payment({ cartNumber, expiryDate, cvc, cartHolderName, userId: _id, type });
+            const { cartNumber, expiryDate, cvv, cartHolderName, type } = req.body
+            const newPayment = new Payment({ cartNumber, expiryDate,cvv: `${Number(cvv)}`, cartHolderName, userId: _id, type });
             await newPayment.save();
             return res.status(201).json({ message: 'Create new payment successfully.', status: 201, data: newPayment })
         } catch (error) {
@@ -71,14 +71,22 @@ class PaymentController {
         console.log('Active payment')
         try {
             const { _id } = req.body.user;
-            const { paymentId } = req.body
-            const checkActive = await Payment.findOne({ isSelected: true })
-            await Payment.updateOne({ _id: checkActive._id }, { isSelected: false })
+            const { paymentId } = req.params
+            const isActive = await Payment.findOne({_id: paymentId, isSelected: true})
+            //handle unchecked
+            if (isActive) {
+                console.log('UnActive')
+                await Payment.updateOne({ _id: paymentId, userId: _id }, { isSelected: false })
+                return res.status(200).json({message: 'UnActive success!', status: 200})
+            }
+            await Payment.updateMany({ userId: _id}, { isSelected: false })
             await Payment.updateOne({ _id: paymentId, userId: _id }, { isSelected: true })
-            return res.status(200).json({ message: 'Active success!' })
+            console.log('Active')
+
+            return res.status(200).json({ message: 'Active success!', status: 200 })
         } catch (error) {
             next(error)
-            return res.status(400).json({ message: 'Active failed!' })
+            return res.status(400).json({ message: 'Active failed!',status: 400 })
         }
     }
 }

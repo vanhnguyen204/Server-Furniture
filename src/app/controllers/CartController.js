@@ -6,6 +6,8 @@ class CartController {
         try {
             const { _id } = req.body.user;
             const response = await Cart.find({ userId: _id });
+
+            console.log(_id)
             if (response.length <= 0) {
                 return res.status(404).json({ status: 404, message: 'Your cart is empty!' })
             }
@@ -25,7 +27,7 @@ class CartController {
                     }
                 }
             })
-            console.log(asignQuantity);
+            console.log(asignQuantity)
             return res.status(200).json(asignQuantity)
         } catch (error) {
             next(error)
@@ -48,10 +50,33 @@ class CartController {
     }
 
     async addAllToCart(req, res, next) {
+        try {
+            const { _id: userId } = req.body.user;
+            const productIds = req.body.filter(item => typeof item === 'string');
 
+            const updateCart = async (productId) => {
+                const cartItem = await Cart.findOne({ productId, userId });
+                if (cartItem) {
+                    await Cart.updateOne(
+                        { productId, userId },
+                        { $set: { quantity: cartItem.quantity + 1 } }
+                    );
+                } else {
+                    const newItem = new Cart({ userId, productId, quantity: 1 });
+                    await newItem.save();
+                }
+            };
+            await Promise.all(productIds.map(updateCart));
+
+            return res.status(200).json({ message: "All products added to cart", status: 200 });
+        } catch (error) {
+            next(error);
+        }
     }
 
+
     async addToCart(req, res, next) {
+        console.log('Add product to cart')
         try {
             const { _id } = req.body.user;
 
@@ -59,7 +84,6 @@ class CartController {
             const { productId, quantity } = req.body;
             const parseQuantity = !quantity ? 1 : Number(quantity)
             const checkProductIsEmpty = await Cart.findOne({ productId: productId })
-            console.log(checkProductIsEmpty);
             if (checkProductIsEmpty) {
 
                 await Cart.updateMany({ _id: checkProductIsEmpty._id }, { quantity: parseQuantity + checkProductIsEmpty.quantity })
