@@ -7,11 +7,10 @@ class CartController {
             const { _id } = req.body.user;
             const response = await Cart.find({ userId: _id });
 
-            console.log(_id)
-            if (response.length <= 0) {
-                return res.status(404).json({ status: 404, message: 'Your cart is empty!' })
+            if (response.length == 0) {
+                console.log(response)
+                return res.status(200).json({ status: 200, message: 'Your cart is empty!' })
             }
-
             const filterProductId = response.map(item => {
                 return item.productId
             })
@@ -22,12 +21,12 @@ class CartController {
                     if (item._id.toString() === response[i].productId) {
                         item.quantity = response[i].quantity
                         const newItem = { ...item._doc, quantity: response[i].quantity }
-                        console.log("newItem", newItem)
                         return newItem
                     }
                 }
             })
-            console.log(asignQuantity)
+
+            console.log('Fetch my cart success!')
             return res.status(200).json(asignQuantity)
         } catch (error) {
             next(error)
@@ -86,7 +85,10 @@ class CartController {
             const checkProductIsEmpty = await Cart.findOne({ productId: productId })
             if (checkProductIsEmpty) {
 
-                await Cart.updateMany({ _id: checkProductIsEmpty._id }, { quantity: parseQuantity + checkProductIsEmpty.quantity })
+                await Cart.updateMany({ _id: checkProductIsEmpty._id,
+                     productId: productId },
+                      { quantity: parseQuantity + checkProductIsEmpty.quantity })
+
                 return res.status(200).json({ message: 'Update quantity of product successfully.', status: 200 })
 
             }
@@ -101,15 +103,13 @@ class CartController {
         } catch (error) {
             next(error)
         }
-
-
     }
 
     async removeFromCart(req, res, next) {
         console.log('Remove product from cart')
         try {
             const { _id } = req.body.user;
-            const { productId } = req.body
+            const { productId } = req.params
 
             await Cart.deleteOne({ productId: productId, userId: _id })
             console.log('Remove product from cart success')

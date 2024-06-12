@@ -1,6 +1,22 @@
 import Product from "../models/Product.js";
 
 class ProductController {
+    async getProductByCategory(req, res, next) {
+        console.log('Get product by category')
+
+        try {
+            const { category } = req.params;
+            if (category === 'popular') {
+                const response = await Product.find({  })
+                return res.json(response)
+            }
+            const response = await Product.find({ type: category })
+            return res.json(response)
+        } catch (error) {
+            next(error)
+        }
+
+    }
     async getAllProduct(req, res, next) {
         console.log('Get product');
         try {
@@ -68,7 +84,7 @@ class ProductController {
         if (!dlProductRes) {
             return res.status(404).json({ message: 'Can not delete product right now, please try again!', status: 404 })
         }
-        return res.status(200).json({ message: 'Delete product successfully!' , status: 200})
+        return res.status(200).json({ message: 'Delete product successfully!', status: 200 })
     }
 
     async productDetails(req, res, next) {
@@ -123,16 +139,28 @@ class ProductController {
     }
     async search(req, res, data) {
         try {
-            const {productName} = req.body;
+            const { productName } = req.params;
             const regex = new RegExp(productName, 'i');
             if (productName === '') {
                 return res.json([])
             }
-            const response = await Product.find({name: { $regex: regex } })
+            const response = await Product.find({ name: { $regex: regex } })
             return res.json(response)
         } catch (error) {
-            
+
         }
+    }
+
+    socketNotification(socket, io) {
+        console.log('A user connected');
+        socket.on('welcome', (chat) => {
+            console.log(chat);
+            io.emit('welcome', chat)
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Client disconnected');
+        });
     }
 }
 

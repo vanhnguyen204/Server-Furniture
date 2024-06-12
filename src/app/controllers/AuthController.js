@@ -1,6 +1,24 @@
+import { passWord } from '../../constants/infor.js';
 import User from '../models/User.js'
 import bcrypt from 'bcrypt'
 const AuthController = {
+    async getInforUser(req, res, next) {
+        console.log('get infor user')
+        try {
+            const { _id } = req.body.user;
+            const ressponse = await User.findOne({ _id: _id })
+            console.log(ressponse)
+            return res.status(200).json({data: {
+                name: ressponse.name,
+                email: ressponse.email,
+                avatar: ressponse.avatar,
+                codeResetPass: '',
+                password: '',
+            }})
+        } catch (error) {
+            next(error)
+        }
+    },
     async login(req, res, next) {
         console.log('Login')
         console.log(req.body)
@@ -17,7 +35,7 @@ const AuthController = {
             const token = await result.generateAuthToken();
             result.passWord = ""
             result.token = token
-            res.status(200).json(result);
+            return res.status(200).json(result);
         } catch (error) {
             next(error);
         }
@@ -30,24 +48,46 @@ const AuthController = {
             const salt = await bcrypt.genSalt(10);
             const checkUserIsEmpty = await User.findOne({ email: req.body.email });
             if (checkUserIsEmpty) {
-                console.log(checkUserIsEmpty);
-                return res.json({ error: 'Tài khoản đã tồn tại.' })
+
+                console.log('Tài khoản đã tồn tại')
+                return res.status(400).json({ message: 'Tài khoản đã tồn tại.', status: 400 })
             }
             const hashedPassword = await bcrypt.hash(req.body.passWord, salt);
 
             const user = new User({
                 email: req.body.email,
-                passWord: hashedPassword
+                passWord: hashedPassword,
+                name: req.body.name
             });
 
             const newUser = await user.save();
-            const token = await newUser.generateAuthToken();
-            res.status(201).send({ user: newUser, token });
             if (newUser) {
                 console.log('create account successfully');
             }
+            res.status(201).json({ message: 'Create account success!.', status: 201 });
         } catch (error) {
             next(error);
+        }
+    },
+    async updateInfor(req, res, next) {
+        console.log('Update infor user')
+        try {
+            const { _id } = req.body.user;
+            const { name, password } = req.body;
+            console.log(req.body)
+            if (password != "") {
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash(password, salt);
+                console.log('UPDATE PASS WORD ', password)
+                await User.updateOne({ _id: _id, passWord: hashedPassword });
+            }
+            if (name !== "") {
+                console.log('UPDATE name: ', name)
+                await User.updateOne({ _id: _id, name: name });
+            }
+            return res.status(200).json({ message: 'Update success!', status: 200 });
+        } catch (error) {
+
         }
     }
 

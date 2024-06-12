@@ -12,6 +12,7 @@ const User = new Schema({
     name: { type: String, default: '' },
     avatar: { type: String, default: '' },
     token: { type: String, default: '' },
+    codeResetPass: {type: Number, default: 0}
 
 }, {
     timestamps: true
