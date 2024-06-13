@@ -79,8 +79,8 @@ class ProductController {
     }
 
     async deleteProduct(req, res, next) {
-        const { id } = req.body;
-        const dlProductRes = await Product.deleteOne({ _id: id });
+        const { productId } = req.params;
+        const dlProductRes = await Product.deleteOne({ _id: productId });
         if (!dlProductRes) {
             return res.status(404).json({ message: 'Can not delete product right now, please try again!', status: 404 })
         }
@@ -89,7 +89,7 @@ class ProductController {
 
     async productDetails(req, res, next) {
         try {
-            const { productId } = req.body;
+            const { productId } = req.params;
             console.log("Product detail--------");
             const response = await Product.findOne({ _id: productId });
             console.log(response);
@@ -105,6 +105,7 @@ class ProductController {
     async updateProduct(req, res, next) {
         try {
             console.log('Update product.')
+        
             const {
                 name,
                 price,

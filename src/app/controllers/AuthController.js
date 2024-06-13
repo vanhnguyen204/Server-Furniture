@@ -8,13 +8,15 @@ const AuthController = {
             const { _id } = req.body.user;
             const ressponse = await User.findOne({ _id: _id })
             console.log(ressponse)
-            return res.status(200).json({data: {
-                name: ressponse.name,
-                email: ressponse.email,
-                avatar: ressponse.avatar,
-                codeResetPass: '',
-                password: '',
-            }})
+            return res.status(200).json({
+                data: {
+                    name: ressponse.name,
+                    email: ressponse.email,
+                    avatar: ressponse.avatar,
+                    codeResetPass: '',
+                    password: '',
+                }
+            })
         } catch (error) {
             next(error)
         }
@@ -25,7 +27,6 @@ const AuthController = {
         try {
             const result = await User.findByCredentials(req.body.email, req.body.passWord);
             if (result.error) {
-
                 return res.status(404).json({
                     status: 404,
                     cause: result.error,
@@ -75,22 +76,41 @@ const AuthController = {
             const { _id } = req.body.user;
             const { name, password } = req.body;
             console.log(req.body)
-            if (password != "") {
+            if (name) {
+                console.log('UPDATE name: ', name)
+                await User.updateOne({ _id: _id, name: name });
+                return res.status(200).json({ message: 'Update success!', status: 200 });
+            }
+            if (password) {
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(password, salt);
                 console.log('UPDATE PASS WORD ', password)
                 await User.updateOne({ _id: _id, passWord: hashedPassword });
+                return res.status(200).json({ message: 'Update success!', status: 200 });
             }
-            if (name !== "") {
-                console.log('UPDATE name: ', name)
-                await User.updateOne({ _id: _id, name: name });
-            }
-            return res.status(200).json({ message: 'Update success!', status: 200 });
-        } catch (error) {
 
+
+        } catch (error) {
+            next(error)
+        }
+    },
+    async handleUploadAvatar(req, res, next) {
+        console.log('Upload avatar');
+        try {
+            const { _id } = req.body.user;
+            if (!req.file) {
+                return res.status(400).json({ message: 'No file uploaded', status: 400 });
+            }
+            console.log(req.file);
+
+            const image = '/images/' + req.file.originalname; // Update this according to your file handling logic
+            await User.updateOne({ _id: _id }, { avatar: image });
+
+            return res.status(200).json({data: { message: 'Upload avatar success.', status: 200, newAvatar: image }});
+        } catch (error) {
+            next(error);
         }
     }
-
 }
 
 export default AuthController;

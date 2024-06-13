@@ -6,10 +6,10 @@ class CartController {
         try {
             const { _id } = req.body.user;
             const response = await Cart.find({ userId: _id });
-
+            console.log(req.body)
             if (response.length == 0) {
                 console.log(response)
-                return res.status(200).json({ status: 200, message: 'Your cart is empty!' })
+                return res.status(200).json({ status: 404, message: 'Your cart is empty!' })
             }
             const filterProductId = response.map(item => {
                 return item.productId
@@ -81,22 +81,28 @@ class CartController {
 
 
             const { productId, quantity } = req.body;
+            console.log(req.body)
             const parseQuantity = !quantity ? 1 : Number(quantity)
             const checkProductIsEmpty = await Cart.findOne({ productId: productId })
+            console.log('Chechking')
+            console.log(checkProductIsEmpty);
             if (checkProductIsEmpty) {
 
-                await Cart.updateMany({ _id: checkProductIsEmpty._id,
-                     productId: productId },
-                      { quantity: parseQuantity + checkProductIsEmpty.quantity })
+                await Cart.updateOne({
+                    _id: checkProductIsEmpty._id.toString(),
+                    productId: productId
+                },
+                    { quantity: parseQuantity + checkProductIsEmpty.quantity })
 
                 return res.status(200).json({ message: 'Update quantity of product successfully.', status: 200 })
 
             }
-            const newData = new Cart()
-            newData.userId = _id;
-            newData.productId = productId;
-            newData.quantity = parseQuantity;
-
+            const newData = new Cart({
+                userId: _id,
+                productId: productId,
+                quantity: parseQuantity,
+            })
+        
             await newData.save();
 
             return res.status(201).json({ message: 'Add product to cart successfully', data: newData, status: 201 })

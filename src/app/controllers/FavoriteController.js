@@ -23,7 +23,7 @@ class FavoriteController {
         console.log('Remove favorite------');
         try {
             const { _id } = req.body.user;
-            const {productId} = req.body
+            const {productId} = req.params
             const favoriteResponse = await Favorite.deleteOne({ userId: _id, productId: productId })
             console.log(favoriteResponse)
             res.status(200).json({ message: 'Remove product out of list favorites' });
@@ -36,7 +36,7 @@ class FavoriteController {
 
     async checkIsFavorite(req, res, next) {
         const { _id } = req.body.user;
-        const { productId } = req.body
+        const { productId } = req.params
         console.log('Checking favorite')
         const favoriteResponse = await Favorite.findOne({ userId: _id, productId: productId });
     
