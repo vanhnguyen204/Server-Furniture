@@ -79,18 +79,17 @@ class CartController {
         try {
             const { _id } = req.body.user;
 
-
             const { productId, quantity } = req.body;
             console.log(req.body)
             const parseQuantity = !quantity ? 1 : Number(quantity)
-            const checkProductIsEmpty = await Cart.findOne({ productId: productId })
+            const checkProductIsEmpty = await Cart.findOne({ productId: productId, userId: _id })
             console.log('Chechking')
             console.log(checkProductIsEmpty);
             if (checkProductIsEmpty) {
 
                 await Cart.updateOne({
                     _id: checkProductIsEmpty._id.toString(),
-                    productId: productId
+                    productId: productId,
                 },
                     { quantity: parseQuantity + checkProductIsEmpty.quantity })
 
