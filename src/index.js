@@ -44,11 +44,11 @@ app.listen(port, IpAddress, () => {
 // Socket.io server
 
 // Socket.io
-io.on('connection', (socket) => {
-    console.log('Connection socket.io')
-    ProductController.socketNotification(socket, io)
+// io.on('connection', (socket) => {
+//     console.log('Connection socket.io')
+//     ProductController.socketNotification(socket, io)
 
-});
+// });
 
 server.listen(socketPort, ipAddress, () => {
     console.log('Socket.io is listening')

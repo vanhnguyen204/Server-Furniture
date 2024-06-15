@@ -153,15 +153,7 @@ class ProductController {
     }
 
     socketNotification(socket, io) {
-        console.log('A user connected');
-        socket.on('welcome', (chat) => {
-            console.log(chat);
-            io.emit('welcome', chat)
-        });
-
-        socket.on('disconnect', () => {
-            console.log('Client disconnected');
-        });
+        
     }
 }
 

@@ -1,3 +1,4 @@
+
 import { passWord } from '../../constants/infor.js';
 import User from '../models/User.js'
 import bcrypt from 'bcrypt'
@@ -106,9 +107,49 @@ const AuthController = {
             const image = '/images/' + req.file.originalname; // Update this according to your file handling logic
             await User.updateOne({ _id: _id }, { avatar: image });
 
-            return res.status(200).json({data: { message: 'Upload avatar success.', status: 200, newAvatar: image }});
+            return res.status(200).json({ data: { message: 'Upload avatar success.', status: 200, newAvatar: image } });
         } catch (error) {
             next(error);
+        }
+    },
+    async verifyEmail(req, res, next) {
+        try {
+            const { email } = req.body;
+            const verificationCode = Math.floor(100000 + Math.random() * 900000);
+            const existingUser = await User.findOne({ email: email });
+            if (!existingUser) {
+                res.status(200).json({ data: { message: 'Tài khoản không tồn tại!', status: 404 } });
+                return;
+            }
+            await User.updateOne({ _id: existingUser._id.toString() }, { codeResetPass: verificationCode });
+            const user = new User({ email: email });
+            await user.sendVerificationEmail(verificationCode)
+            return res.status(200).json({ data: { message: 'Vui lòng kiểm tra email để lấy mã xác nhận', status: 200 } })
+        } catch (error) {
+            next(error)
+        }
+    }
+    ,
+    async verifyCode(req, res, next) {
+        try {
+            const { code } = req.body
+            const checkCode = await User.findOne({ codeResetPass: Number(code) })
+            if (checkCode) {
+                return res.status(200).json({ data: { message: 'Verify code success.', status: 200 } })
+            }
+        } catch (error) {
+            next(error)
+        }
+    },
+    async resetPass(req, res, next) {
+        try {
+            const {email, password} = req.body
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+            await User.updateOne({email: email, passWord: hashedPassword })
+            return res.status(200).json({message: 'Change pass success.', status: 200})
+        } catch (error) {
+            next(error)
         }
     }
 }

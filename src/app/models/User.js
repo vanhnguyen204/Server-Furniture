@@ -32,10 +32,9 @@ User.methods.sendVerificationEmail = async function (verificationCode) {
         await transporter.sendMail({
             from: process.env.EMAIL_USERNAME,
             to: user.email,
-            subject: 'Verify Your Email from Vstagram',
+            subject: 'Verify Your Email from Furniture App',
             text: `Your verification code is ${verificationCode}`
         });
-        console.log('Verification email sent');
     } catch (error) {
         console.error('Error sending verification email:', error);
     }
